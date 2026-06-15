@@ -95,9 +95,10 @@ void ViewCart()
 {
     if (Cartitems.Any())
     {
+        var Cartitems = GetCartPrice();
         foreach (var item in Cartitems)
         {
-            Console.WriteLine($"items: {item}");
+            Console.WriteLine($"items ==> Name: {item.Item1}  Price:{item.Item2} ");
         }
     }
     else
@@ -105,7 +106,7 @@ void ViewCart()
         Console.WriteLine("Cart is Empty");
     }
 }
-void GetCartPrices()
+   IEnumerable<Tuple<string,double>> GetCartPrice()
 {
     var CartPrices = new List<Tuple<string, double>>();
     foreach (var item in Cartitems)
@@ -114,7 +115,9 @@ void GetCartPrices()
         bool foundItem = ItemPrices.TryGetValue(item, out price);
         if (foundItem)
         {
-
+            Tuple<string, double> itemPrice = new Tuple<string, double>(item, price);
+            CartPrices.Add(itemPrice);
         }
     }
+    return CartPrices;
 }
