@@ -6,8 +6,11 @@ Dictionary<string, double> ItemPrices = new Dictionary<string, double>()  //The 
     {"Camera",1500},
     {"laptop",1500.4},
     {"TV",8567},
-    {"Car",200}
+    {"Car",200},
+    {"Mouse",124},
+    {"Keyboard",789}
 };
+Stack <string> actions = new Stack<string>();
 Console.WriteLine("Welcome to the Shopping System ");
 Console.WriteLine("==============================");
 while (true)
@@ -51,24 +54,30 @@ while (true)
 
 }
 
-void Undo()
-{
-
-}
-
-void CheckOut()
-{
-
-}
 
 void RemoveItem()
 {
-    Console.Write("Please Enter Item Name:");
-    string ItemName = Console.ReadLine();
-    if (Cartitems.Contains(ItemName))
+    ViewCart();
+    if (Cartitems.Any())
     {
-        Cartitems.Remove(ItemName);
+        Console.Write("Please Select Item To Remove: ");
+        string ItemToRemove = Console.ReadLine();
+        if (Cartitems.Contains(ItemToRemove))
+        {
+            Cartitems.Remove(ItemToRemove);
+            actions.Push($"Item {ItemToRemove} Remove From Card");
+            Console.WriteLine($"Item: {ItemToRemove} Removed");
+        }
+        else
+        {
+            Console.WriteLine("Item dosnt Exist in Sopping Cart .");
+        }
     }
+    else
+    {
+        Console.WriteLine("The Cart Item is Empty.");
+    }
+   
 }
 
 void AddItem()
@@ -83,6 +92,7 @@ void AddItem()
     if (ItemPrices.ContainsKey(CartItem))
     {
         Cartitems.Add(CartItem);
+        actions.Push($"Item {CartItem} Add From Card");
         Console.WriteLine($"Item {CartItem} is added to your card");
     }
     else
@@ -106,7 +116,7 @@ void ViewCart()
         Console.WriteLine("Cart is Empty");
     }
 }
-   IEnumerable<Tuple<string,double>> GetCartPrice()
+IEnumerable<Tuple<string,double>> GetCartPrice()
 {
     var CartPrices = new List<Tuple<string, double>>();
     foreach (var item in Cartitems)
@@ -120,4 +130,50 @@ void ViewCart()
         }
     }
     return CartPrices;
+}
+void CheckOut()
+{
+    if (Cartitems.Any())
+    {
+        double TotalPrice = 0;
+        Console.WriteLine("Your cart Item Are.");
+        IEnumerable<Tuple<string, double>> ItemsCart = GetCartPrice();
+        foreach (var item in ItemsCart)
+        {
+            Console.WriteLine($"Item ==> Name:{item.Item1}   Price:{item.Item2}");
+            TotalPrice += item.Item2;
+        }
+        Console.WriteLine($" TotalPrice to pay: {TotalPrice}");
+        Console.WriteLine("Please Proceed to payment , Thank you for Shopping with us ");
+    }
+    else
+    {
+        Console.WriteLine("Your Cart is Empty.");
+    }
+    Cartitems.Clear();
+    actions.Push("Checkout");
+}
+void Undo()
+{
+    if (actions.Count > 0)
+    {
+        string lastAction = actions.Pop();
+
+        Console.WriteLine($"Your last action is {lastAction}");
+
+        var actionArray = lastAction.Split();
+
+        if (lastAction.Contains("added"))
+        {
+            Cartitems.Remove(actionArray[1]);
+        }
+        else if (lastAction.Contains("removed"))
+        {
+            Cartitems.Add(actionArray[1]);
+        }
+        else
+        {
+            Console.WriteLine("Check out cannot be undo, please ask for refund");
+        }
+    }
 }
